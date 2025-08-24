@@ -1,4 +1,4 @@
-# wealthescrow_bot.py
+# bot.py
 import os
 import asyncio
 import io
@@ -23,6 +23,9 @@ BTCPAY_STORE_ID = os.getenv("BTCPAY_STORE_ID")
 
 bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
+
+# In-memory store for registered users
+user_roles = {}  # {user_id: {"role": "seller"/"buyer", "address": "wallet"}}
 
 
 # ---------------------- BTCPay Helpers ----------------------
@@ -88,21 +91,29 @@ async def cmd_start(message: types.Message):
     welcome = (
         "⚜️ <b>WealthEscrowBot</b> ⚜️ v.1\n"
         "Your Automated Telegram Escrow Service\n\n"
-        "🔒 Secure your transactions with escrow.\n\n"
+        "Welcome to WealthEscrowBot! This bot provides a secure escrow service for your transactions on Telegram. 🔒 "
+        "No more worries about getting scammed—your funds stay safe during all your deals. "
+        "If you run into any issues, just type <b>/contact</b>, and an arbitrator will join your group chat within 24 hours. ⏳\n\n"
+
         "💰 <b>ESCROW FEE:</b>\n"
-        "• 5% for amounts over $100\n"
-        "• $5 for amounts under $100\n\n"
+        "5% for amounts over $100\n"
+        "$5 for amounts under $100\n\n"
+
         "🌟 <a href='https://t.me/WealthEscrow'>UPDATES</a> - "
         "<a href='https://t.me/WealthEscrowBotVouches'>VOUCHES</a>\n"
         "✅ DEALS COMPLETED: 4371\n"
         "⚖️ DISPUTES RESOLVED: 162\n\n"
+
         "🛒 To declare yourself as a seller or buyer:\n"
-        "• /seller ADDRESS\n"
-        "• /buyer ADDRESS\n\n"
-        "Replace ADDRESS with your BTC, LTC, USDT (TRC20/BEP20), or TON wallet.\n\n"
-        "📜 Type /menu to view all bot features."
+        "Type <b>/seller ADDRESS</b> to register as a seller.\n"
+        "Type <b>/buyer ADDRESS</b> to register as a buyer.\n"
+        "• Or simply paste your crypto address and choose your role using the buttons.\n\n"
+
+        "💡 Replace ADDRESS with your BTC, LTC, USDT (TRC20), USDT (BEP20), or TON wallet address.\n\n"
+        "📜 Type <b>/menu</b> to view all the bot's features. (only in escrow group)"
     )
-    await message.answer(welcome, reply_markup=keyboard)
+
+    await message.answer(welcome, reply_markup=keyboard, parse_mode="HTML")
 
 
 @dp.callback_query_handler(lambda c: c.data == "create_group")
@@ -164,7 +175,32 @@ async def cmd_menu(message: types.Message):
         "/refer - Refer users and earn USDT bonuses\n"
         "/setpin - Set Transaction PIN\n"
     )
-    await message.answer(text)
+    await message.answer(text, parse_mode="HTML")
+
+
+# ---------------------- Seller / Buyer ----------------------
+@dp.message_handler(commands=["seller"])
+async def cmd_seller(message: types.Message):
+    parts = message.text.split()
+    if len(parts) < 2:
+        await message.reply("⚠️ Usage: /seller <WALLET_ADDRESS>")
+        return
+
+    wallet = parts[1]
+    user_roles[message.from_user.id] = {"role": "seller", "address": wallet}
+    await message.reply(f"✅ You are now registered as a <b>SELLER</b>.\nWallet: <code>{wallet}</code>", parse_mode="HTML")
+
+
+@dp.message_handler(commands=["buyer"])
+async def cmd_buyer(message: types.Message):
+    parts = message.text.split()
+    if len(parts) < 2:
+        await message.reply("⚠️ Usage: /buyer <WALLET_ADDRESS>")
+        return
+
+    wallet = parts[1]
+    user_roles[message.from_user.id] = {"role": "buyer", "address": wallet}
+    await message.reply(f"✅ You are now registered as a <b>BUYER</b>.\nWallet: <code>{wallet}</code>", parse_mode="HTML")
 
 
 # ---------------------- Register Bot Commands ----------------------
@@ -185,6 +221,8 @@ async def set_bot_commands(bot: Bot):
         BotCommand(command="refer", description="Refer users and earn USDT bonuses"),
         BotCommand(command="setpin", description="Set Transaction PIN"),
         BotCommand(command="menu", description="View all bot features"),
+        BotCommand(command="seller", description="Register as seller with wallet"),
+        BotCommand(command="buyer", description="Register as buyer with wallet"),
     ]
     await bot.set_my_commands(commands)
 
