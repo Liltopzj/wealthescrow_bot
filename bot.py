@@ -91,26 +91,22 @@ async def cmd_start(message: types.Message):
     welcome = (
         "⚜️ <b>WealthEscrowBot</b> ⚜️ v.1\n"
         "Your Automated Telegram Escrow Service\n\n"
-        "Welcome to WealthEscrowBot! This bot provides a secure escrow service for your transactions on Telegram. 🔒 "
-        "No more worries about getting scammed—your funds stay safe during all your deals. "
-        "If you run into any issues, just type <b>/contact</b>, and an arbitrator will join your group chat within 24 hours. ⏳\n\n"
-
+        "Welcome to WealthEscrowBot! This bot provides a secure escrow service for your transactions on Telegram. "
+        "🔒 No more worries about getting scammed—your funds stay safe during all your deals.\n\n"
+        "⏳ If you run into any issues, just type <b>/contact</b>, and an arbitrator will join your group chat within 24 hours.\n\n"
         "💰 <b>ESCROW FEE:</b>\n"
-        "5% for amounts over $100\n"
-        "$5 for amounts under $100\n\n"
-
+        "• 5% for amounts over $100\n"
+        "• $5 for amounts under $100\n\n"
         "🌟 <a href='https://t.me/WealthEscrow'>UPDATES</a> - "
         "<a href='https://t.me/WealthEscrowBotVouches'>VOUCHES</a>\n"
         "✅ DEALS COMPLETED: 4371\n"
         "⚖️ DISPUTES RESOLVED: 162\n\n"
-
         "🛒 To declare yourself as a seller or buyer:\n"
-        "Type <b>/seller ADDRESS</b> to register as a seller.\n"
-        "Type <b>/buyer ADDRESS</b> to register as a buyer.\n"
+        "• Type <code>/seller ADDRESS</code> to register as a seller.\n"
+        "• Type <code>/buyer ADDRESS</code> to register as a buyer.\n"
         "• Or simply paste your crypto address and choose your role using the buttons.\n\n"
-
         "💡 Replace ADDRESS with your BTC, LTC, USDT (TRC20), USDT (BEP20), or TON wallet address.\n\n"
-        "📜 Type <b>/menu</b> to view all the bot's features. (only in escrow group)"
+        "📜 Type /menu to view all the bot's features. (only works inside escrow groups)"
     )
 
     await message.answer(welcome, reply_markup=keyboard, parse_mode="HTML")
